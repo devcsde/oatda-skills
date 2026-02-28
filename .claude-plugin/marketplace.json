@@ -1,0 +1,19 @@
+{
+  "name": "oatda-skills",
+  "owner": {
+    "name": "devcsde",
+    "email": "dev@oatda.com"
+  },
+  "metadata": {
+    "description": "OATDA plugin marketplace — unified access to 10+ LLM providers through a single API",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "oatda",
+      "source": ".",
+      "description": "Unified access to 10+ LLM providers (OpenAI, Anthropic, Google, Deepseek, Mistral, xAI, and more) for text generation, vision analysis, image generation, and video generation through a single API.",
+      "version": "1.0.0"
+    }
+  ]
+}
