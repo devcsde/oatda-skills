@@ -30,15 +30,16 @@ If neither exists, tell the user:
 ### 1. Resolve the API key
 
 ```bash
-# Check env var first
-echo "$OATDA_API_KEY" | head -c 8
+# Check env var first; if empty, auto-load from credentials file
+if [[ -z "$OATDA_API_KEY" ]]; then
+  export OATDA_API_KEY=$(cat ~/.oatda/credentials.json 2>/dev/null | jq -r '.profiles[.defaultProfile].apiKey' 2>/dev/null)
+fi
+
+# Verify key exists (show first 8 chars only)
+echo "${OATDA_API_KEY:0:8}"
 ```
 
-If empty, try reading from config file:
-
-```bash
-cat ~/.oatda/credentials.json 2>/dev/null | jq -r '.profiles[.defaultProfile].apiKey' 2>/dev/null | head -c 8
-```
+If the output is empty or `null`, stop and ask the user to configure their API key.
 
 **IMPORTANT**: Never print the full API key.
 
