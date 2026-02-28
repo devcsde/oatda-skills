@@ -1,7 +1,7 @@
 {
   "name": "oatda",
   "description": "OATDA (One API To Direct All) — Unified access to 10+ LLM providers (OpenAI, Anthropic, Google, Deepseek, Mistral, xAI, and more) for text generation, vision analysis, image generation, and video generation through a single API.",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": {
     "name": "devcsde",
     "url": "https://github.com/devcsde"

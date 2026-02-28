@@ -1,6 +1,6 @@
 {
   "name": "@oatda-ai/skills",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "OATDA skills plugin for Claude Code — Unified access to 10+ LLM providers (OpenAI, Anthropic, Google, and more)",
   "author": "devcsde",
   "license": "Apache-2.0",

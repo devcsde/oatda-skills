@@ -41,7 +41,9 @@ echo "${OATDA_API_KEY:0:8}"
 
 If the output is empty or `null`, stop and ask the user to configure their API key.
 
-**IMPORTANT**: Never print the full API key.
+**IMPORTANT**:
+- Never print the full API key. Only show the first 8 characters for verification.
+- The key resolution script and subsequent `curl` commands **must run in the same shell session**. Each separate bash/terminal invocation starts with an isolated environment where previously exported variables are lost. Either run all commands in one session, or chain them (e.g., `export OATDA_API_KEY=... && curl ...`).
 
 ### 2. Determine filters
 
