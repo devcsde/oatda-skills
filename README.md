@@ -1,55 +1,60 @@
-# OATDA Skills for Claude Code
+# OATDA Skills Plugin for Claude Code
 
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
-[![Version](https://img.shields.io/github/v/release/devcsde/oatda-skills)](https://github.com/devcsde/oatda-skills/releases)
+[![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](https://code.claude.com/docs/en/plugins)
 
-OATDA (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This repository contains Claude Code skills for easy integration.
+[OATDA](https://oatda.com) (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This [Claude Code plugin](https://code.claude.com/docs/en/plugins) adds skills for text generation, vision analysis, image generation, and video generation.
 
 ## Supported Providers
 
 | Provider | Chat | Image | Video |
 |----------|------|-------|-------|
-| OpenAI | ✅ | ✅ (DALL-E) | ✅ |
+| OpenAI | ✅ | ✅ (DALL-E, GPT-Image) | ✅ (Sora) |
 | Anthropic | ✅ | - | - |
 | Google | ✅ | ✅ (Imagen) | ✅ (Veo) |
 | Deepseek | ✅ | - | - |
 | Mistral | ✅ | - | - |
-| xAI | ✅ | - | - |
-| Alibaba | ✅ | - | ✅ (Wan) |
-| MiniMax | ✅ | ✅ | ✅ |
+| xAI | ✅ | ✅ | - |
+| Alibaba | ✅ | ✅ (Qwen) | ✅ (Wan) |
+| MiniMax | ✅ | ✅ | ✅ (T2V-01) |
 | ZAI | ✅ | - | ✅ |
 | Moonshot | ✅ | - | - |
 
 ## Installation
 
-### Option 1: Install All Skills
+### Option 1: Load from local directory (development)
 
 ```bash
-npx @claude-code/skills install devcsde/oatda-skills
+git clone https://github.com/devcsde/oatda-skills.git
+claude --plugin-dir ./oatda-skills
 ```
 
-### Option 2: Install Individual Skills
+### Option 2: Install from marketplace
 
 ```bash
-# Text completion (chat)
-npx @claude-code/skills install devcsde/oatda-skills#skills/oatda-text-completion
-
-# Image generation
-npx @claude-code/skills install devcsde/oatda-skills#skills/oatda-generate-image
-
-# Video generation
-npx @claude-code/skills install devcsde/oatda-skills#skills/oatda-generate-video
+# Inside Claude Code:
+/plugin install devcsde/oatda-skills
 ```
 
 ## Configuration
 
-Set your OATDA API key:
+Set your OATDA API key using one of these methods:
+
+### Environment variable (quickest)
 
 ```bash
 export OATDA_API_KEY=your_api_key_here
 ```
 
-Or create a config file at `~/.oatda/credentials.json`:
+### Config file (recommended)
+
+Run the setup script:
+
+```bash
+bash scripts/setup-credentials.sh
+```
+
+Or manually create `~/.oatda/credentials.json`:
 
 ```json
 {
@@ -59,7 +64,6 @@ Or create a config file at `~/.oatda/credentials.json`:
     "default": {
       "name": "default",
       "apiKey": "your_api_key_here",
-      "baseUrl": "https://oatda.com",
       "createdAt": 1234567890,
       "lastUsed": 1234567890
     }
@@ -67,7 +71,7 @@ Or create a config file at `~/.oatda/credentials.json`:
 }
 ```
 
-**Important**: Set secure permissions on the config file:
+**Important**: Set secure permissions:
 
 ```bash
 chmod 600 ~/.oatda/credentials.json
@@ -75,125 +79,118 @@ chmod 600 ~/.oatda/credentials.json
 
 ## Available Skills
 
-| Skill | Description | MCP Equivalent |
-|-------|-------------|----------------|
-| `oatda-text-completion` | Text generation from 10+ providers with streaming | `chat_completion` |
-| `oatda-vision-analysis` | Image analysis with vision models | `vision_analysis` |
-| `oatda-generate-image` | Image generation (DALL-E, Imagen, Qwen, MiniMax) | `generate_image` |
-| `oatda-generate-video` | Video generation (async, returns task ID) | `generate_video` |
-| `oatda-video-status` | Check async video generation status | `get_video_status` |
-| `oatda-list-models` | List available models with filtering | `list_models` |
+| Skill | Invocation | Description |
+|-------|------------|-------------|
+| Text Completion | `/oatda:oatda-text-completion` | Generate text using any of 10+ LLM providers |
+| Vision Analysis | `/oatda:oatda-vision-analysis` | Analyze images using vision-capable models |
+| Image Generation | `/oatda:oatda-generate-image` | Generate images from text descriptions |
+| Video Generation | `/oatda:oatda-generate-video` | Generate videos (async, returns task ID) |
+| Video Status | `/oatda:oatda-video-status` | Check video generation task status |
+| List Models | `/oatda:oatda-list-models` | List available models with filtering |
+
+Claude will also invoke these skills automatically when relevant to your conversation.
 
 ## Usage Examples
 
-### Text Completion
+### Text Generation
 
 ```
-> Write a haiku about code using gpt-4o
+Write a haiku about code using claude
 ```
 
-The skill will use OpenAI's GPT-4o model to generate the haiku.
-
-### Image Generation
-
 ```
-> Generate an image of a cyberpunk city at night using DALL-E 3
+/oatda:oatda-text-completion Explain quantum computing using gpt-4o
 ```
-
-The skill will create the image and return the URL.
-
-### Video Generation
-
-```
-> Create a 5-second video of ocean waves at sunset using Google Veo
-```
-
-The skill will start video generation and return a task ID. Check status with:
-
-```
-> Check the video generation status for task [task_id]
-```
-
-### Model Selection
-
-```
-> Compare responses from gpt-4o and claude-3-5-sonnet on "What is the meaning of life?"
-```
-
-The skill can generate text from any supported model using the `provider/model` format.
 
 ### Vision Analysis
 
 ```
-> Analyze this image: [URL] and describe what you see
+Analyze this image: https://example.com/photo.jpg
 ```
 
-The skill will use a vision model to analyze the image.
+### Image Generation
 
-## MCP vs Skills
+```
+/oatda:oatda-generate-image A cyberpunk city at night, neon lights, rain
+```
 
-Choose your integration method:
+### Video Generation
 
-| Feature | MCP Server | Skills |
-|---------|-----------|--------|
-| **Installation** | Single server endpoint | Individual skill installation |
-| **Auth** | Per-session API key | Global API key config |
-| **State** | Session-based | Stateless |
-| **Use Case** | Production integrations | Development workflows |
+```
+/oatda:oatda-generate-video Ocean waves crashing on a beach at sunset
+```
 
-**Use MCP when**:
-- Building production applications
-- Need session management
-- Want unified protocol
+Then check status:
 
-**Use Skills when**:
-- Developing with Claude Code
-- Want quick integration
-- Prefer per-skill control
+```
+/oatda:oatda-video-status <task-id>
+```
 
-## API Key Security
+### List Models
 
-This repository implements multiple layers of API key protection:
+```
+/oatda:oatda-list-models
+```
 
-1. **System Keyring** (most secure): Store keys encrypted in OS keychain
-2. **Config File** (recommended): `~/.oatda/credentials.json` with `0600` permissions
-3. **Environment Variable** (dev only): `OATDA_API_KEY` for quick testing
-4. **Profile Support**: Multiple named profiles for different environments
+```
+What OpenAI models are available through OATDA?
+```
 
-See [API Key Security](docs/plans/2026-02-28-oatda-skills-api-key-security.md) for detailed security guidelines.
+## Plugin Structure
+
+```
+oatda-skills/
+├── .claude-plugin/
+│   └── plugin.json          # Plugin manifest
+├── skills/
+│   ├── oatda-text-completion/
+│   │   └── SKILL.md         # Text generation skill
+│   ├── oatda-vision-analysis/
+│   │   └── SKILL.md         # Image analysis skill
+│   ├── oatda-generate-image/
+│   │   └── SKILL.md         # Image generation skill
+│   ├── oatda-generate-video/
+│   │   └── SKILL.md         # Video generation skill
+│   ├── oatda-video-status/
+│   │   └── SKILL.md         # Video status checking skill
+│   └── oatda-list-models/
+│       └── SKILL.md         # Model listing skill
+├── scripts/
+│   └── setup-credentials.sh # API key setup helper
+├── README.md
+└── LICENSE
+```
+
+## API Reference
+
+All skills communicate with the OATDA REST API:
+
+| Endpoint | Method | Purpose |
+|----------|--------|---------|
+| `/api/v1/llm` | POST | Text/chat completion |
+| `/api/v1/llm/image` | POST | Vision analysis |
+| `/api/v1/llm/generate-image` | POST | Image generation |
+| `/api/v1/llm/generate-video?async=true` | POST | Video generation |
+| `/api/v1/llm/video-status/{taskId}` | GET | Video status |
+| `/api/v1/models` | GET | List models |
+
+Authentication: `Authorization: Bearer <api_key>` header on all requests.
 
 ## Getting an API Key
 
 1. Visit [oatda.com](https://oatda.com)
 2. Sign up or log in
-3. Navigate to API Keys section
-4. Generate a new API key
-5. Set the key in your environment or config file
+3. Navigate to **API Keys**
+4. Click **Generate New Key**
+5. Store it securely (see Configuration above)
 
-## Support
+## Security
 
-- **Issues**: [GitHub Issues](https://github.com/devcsde/oatda-skills/issues)
-- **Documentation**: [OATDA Docs](https://docs.oatda.com)
-- **API Reference**: [OATDA API Reference](https://oatda.com/api/docs)
-
-## Development
-
-```bash
-# Clone repository
-git clone https://github.com/devcsde/oatda-skills.git
-cd oatda-skills
-
-# Install dependencies (if adding TypeScript tooling)
-npm install
-
-# Run tests
-npm test
-```
-
-## Contributing
-
-Contributions are welcome! Please read our contributing guidelines before submitting PRs.
+- API keys are never logged or included in skill output
+- Config file requires `chmod 600` permissions
+- Only HTTPS image URLs are accepted (no HTTP, no local files)
+- Internal/private IPs are rejected (localhost, 169.254.x.x, etc.)
 
 ## License
 
-Apache License 2.0 - see [LICENSE](LICENSE) for details.
+[Apache 2.0](LICENSE)

@@ -10,29 +10,39 @@ permissions:
   contents: read
 
 jobs:
-  typecheck:
-    name: Type Check
+  validate-plugin:
+    name: Validate Plugin Structure
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
-      - uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
+      - name: Check plugin manifest
+        run: |
+          if [ ! -f ".claude-plugin/plugin.json" ]; then
+            echo "❌ Missing .claude-plugin/plugin.json"
+            exit 1
+          fi
+          echo "✅ Plugin manifest exists"
 
-      - run: npm ci
+          # Validate JSON
+          python3 -c "import json; json.load(open('.claude-plugin/plugin.json'))" 2>/dev/null
+          if [ $? -ne 0 ]; then
+            echo "❌ Invalid JSON in plugin.json"
+            exit 1
+          fi
+          echo "✅ Plugin manifest is valid JSON"
 
-      - name: TypeScript type check
-        run: npx tsc --noEmit
+          # Check required fields
+          python3 -c "
+          import json
+          m = json.load(open('.claude-plugin/plugin.json'))
+          assert 'name' in m, 'Missing name field'
+          assert 'description' in m, 'Missing description field'
+          assert 'version' in m, 'Missing version field'
+          print('✅ Plugin manifest has required fields')
+          "
 
-  lint-skills:
-    name: Validate Skill Files
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
-
-      - name: Check skill.md files exist
+      - name: Check SKILL.md files
         run: |
           SKILLS=(
             "oatda-text-completion"
@@ -42,33 +52,55 @@ jobs:
             "oatda-video-status"
             "oatda-list-models"
           )
-          
+
           for skill in "${SKILLS[@]}"; do
-            if [ ! -f "skills/$skill/skill.md" ]; then
-              echo "❌ Missing: skills/$skill/skill.md"
+            if [ ! -f "skills/$skill/SKILL.md" ]; then
+              echo "❌ Missing: skills/$skill/SKILL.md"
               exit 1
             fi
-            if [ ! -f "skills/$skill/handler.ts" ]; then
-              echo "❌ Missing: skills/$skill/handler.ts"
-              exit 1
-            fi
-            echo "✅ skills/$skill/ — OK"
+            echo "✅ skills/$skill/SKILL.md exists"
           done
 
-      - name: Check skill.md frontmatter
+      - name: Validate SKILL.md frontmatter
         run: |
-          for skill_file in skills/*/skill.md; do
-            # Ensure each skill.md has required frontmatter fields
+          for skill_file in skills/*/SKILL.md; do
+            # Check frontmatter delimiters exist
+            FRONT=$(head -1 "$skill_file")
+            if [ "$FRONT" != "---" ]; then
+              echo "❌ $skill_file missing frontmatter (first line must be ---)"
+              exit 1
+            fi
+
+            # Check name field
             if ! grep -q "^name:" "$skill_file"; then
               echo "❌ $skill_file missing 'name' in frontmatter"
               exit 1
             fi
+
+            # Check description field
             if ! grep -q "^description:" "$skill_file"; then
               echo "❌ $skill_file missing 'description' in frontmatter"
               exit 1
             fi
-            echo "✅ $skill_file — frontmatter OK"
+
+            # Check line count (recommended under 500)
+            LINES=$(wc -l < "$skill_file")
+            if [ "$LINES" -gt 500 ]; then
+              echo "⚠️  $skill_file has $LINES lines (recommended: under 500)"
+            fi
+
+            echo "✅ $skill_file — frontmatter OK ($LINES lines)"
           done
+
+      - name: Check no handler.ts files
+        run: |
+          HANDLERS=$(find skills/ -name "handler.ts" -o -name "handler.js" 2>/dev/null)
+          if [ -n "$HANDLERS" ]; then
+            echo "❌ Found handler files (Claude Code skills are markdown-only):"
+            echo "$HANDLERS"
+            exit 1
+          fi
+          echo "✅ No handler files found (correct for Claude Code skills)"
 
   secrets-scan:
     name: Secrets Scan
@@ -80,36 +112,33 @@ jobs:
 
       - name: Scan for API keys and secrets
         run: |
-          # Check for common secret patterns in source files
           PATTERNS=(
             'oatda_[A-Za-z0-9_-]{20,}'
             'sk_[A-Za-z0-9_-]{20,}'
             'OATDA_API_KEY\s*=\s*["\x27][^"\x27]{20,}'
           )
-          
+
           FOUND=0
           for pattern in "${PATTERNS[@]}"; do
-            MATCHES=$(grep -rnE "$pattern" --include="*.ts" --include="*.md" --include="*.json" . \
+            MATCHES=$(grep -rnE "$pattern" --include="*.md" --include="*.json" --include="*.sh" . \
               | grep -v node_modules \
               | grep -v ".example" \
               | grep -v "your_api_key" \
               | grep -v "your_key_here" \
-              | grep -v "credentials.json" \
               | grep -v "\.gitignore" \
               || true)
-            
+
             if [ -n "$MATCHES" ]; then
               echo "⚠️  Potential secret found matching pattern: $pattern"
               echo "$MATCHES"
               FOUND=1
             fi
           done
-          
+
           if [ "$FOUND" -eq 1 ]; then
             echo ""
             echo "❌ Potential secrets detected. Review the above matches."
             echo "   If they are false positives (examples, docs), this is OK."
-            # Don't fail the build, just warn
           else
             echo "✅ No secrets detected"
           fi

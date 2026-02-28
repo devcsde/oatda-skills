@@ -1,8 +1,8 @@
 {
   "name": "@oatda-ai/skills",
   "version": "1.0.0",
-  "description": "OATDA skills for Claude Code - Unified access to 13+ LLM providers (OpenAI, Anthropic, Google, and more)",
-  "author": "OATDA Team",
+  "description": "OATDA skills plugin for Claude Code — Unified access to 10+ LLM providers (OpenAI, Anthropic, Google, and more)",
+  "author": "devcsde",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
@@ -17,64 +17,17 @@
     "llm",
     "ai",
     "claude-code",
+    "claude-code-plugin",
     "skills",
     "openai",
     "anthropic",
-    "google",
-    "text-generation",
-    "image-generation",
-    "video-generation",
-    "chat",
-    "completion"
-  ],
-  "skills": [
-    {
-      "name": "oatda-text-completion",
-      "path": "skills/oatda-text-completion",
-      "description": "Generate text using any of OATDA's 13+ LLM providers"
-    },
-    {
-      "name": "oatda-vision-analysis",
-      "path": "skills/oatda-vision-analysis",
-      "description": "Analyze images using vision-capable AI models"
-    },
-    {
-      "name": "oatda-generate-image",
-      "path": "skills/oatda-generate-image",
-      "description": "Generate images using AI models (DALL-E, Imagen, Qwen, MiniMax, xAI)"
-    },
-    {
-      "name": "oatda-generate-video",
-      "path": "skills/oatda-generate-video",
-      "description": "Generate videos using AI models (MiniMax, Google Veo, Alibaba Wan)"
-    },
-    {
-      "name": "oatda-video-status",
-      "path": "skills/oatda-video-status",
-      "description": "Check async video generation status"
-    },
-    {
-      "name": "oatda-list-models",
-      "path": "skills/oatda-list-models",
-      "description": "List available AI models with filtering by type and provider"
-    }
+    "google"
   ],
   "files": [
+    ".claude-plugin/",
     "skills/",
-    "shared/",
+    "scripts/",
     "README.md",
     "LICENSE"
-  ],
-  "scripts": {
-    "typecheck": "tsc --noEmit",
-    "test": "echo \"Run tests with: npx tsx tests/integration/*.test.ts\"",
-    "lint": "tsc --noEmit"
-  },
-  "engines": {
-    "node": ">=18.0.0"
-  },
-  "devDependencies": {
-    "@types/node": "^25.3.2",
-    "typescript": "^5.9.3"
-  }
+  ]
 }
