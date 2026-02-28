@@ -1,0 +1,76 @@
+{
+  "name": "@oatda-ai/skills",
+  "version": "1.0.0",
+  "description": "OATDA skills for Claude Code - Unified access to 13+ LLM providers (OpenAI, Anthropic, Google, and more)",
+  "author": "OATDA Team",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devcsde/oatda-skills.git"
+  },
+  "homepage": "https://github.com/devcsde/oatda-skills#readme",
+  "bugs": {
+    "url": "https://github.com/devcsde/oatda-skills/issues"
+  },
+  "keywords": [
+    "oatda",
+    "llm",
+    "ai",
+    "claude-code",
+    "skills",
+    "openai",
+    "anthropic",
+    "google",
+    "text-generation",
+    "image-generation",
+    "video-generation",
+    "chat",
+    "completion"
+  ],
+  "skills": [
+    {
+      "name": "oatda-text-completion",
+      "path": "skills/oatda-text-completion",
+      "description": "Generate text using any of OATDA's 13+ LLM providers"
+    },
+    {
+      "name": "oatda-vision-analysis",
+      "path": "skills/oatda-vision-analysis",
+      "description": "Analyze images using vision-capable AI models"
+    },
+    {
+      "name": "oatda-generate-image",
+      "path": "skills/oatda-generate-image",
+      "description": "Generate images using AI models (DALL-E, Imagen, Qwen, MiniMax, xAI)"
+    },
+    {
+      "name": "oatda-generate-video",
+      "path": "skills/oatda-generate-video",
+      "description": "Generate videos using AI models (MiniMax, Google Veo, Alibaba Wan)"
+    },
+    {
+      "name": "oatda-video-status",
+      "path": "skills/oatda-video-status",
+      "description": "Check async video generation status"
+    },
+    {
+      "name": "oatda-list-models",
+      "path": "skills/oatda-list-models",
+      "description": "List available AI models with filtering by type and provider"
+    }
+  ],
+  "files": [
+    "skills/",
+    "shared/",
+    "README.md",
+    "LICENSE"
+  ],
+  "scripts": {
+    "test": "echo \"Run tests with: npx tsx tests/integration/*.test.ts\"",
+    "lint": "echo \"No linting configured yet\"",
+    "format": "echo \"No formatting configured yet\""
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
