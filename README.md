@@ -33,7 +33,17 @@ claude --plugin-dir ./oatda-skills
 
 ```bash
 # Inside Claude Code:
-/plugin install devcsde/oatda-skills
+
+1. add marketplace
+/plugin marketplace add devcsde/oatda-skills
+
+2. install skill
+/plugin
+then go to installed marketplaces, browse to and click "Install" on the OATDA Skills plugin
+
+3. restart claude-code
+then restart claude-code to load the skill/plugin
+
 ```
 
 ## Configuration
