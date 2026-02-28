@@ -11,7 +11,7 @@
   "plugins": [
     {
       "name": "oatda",
-      "source": ".",
+      "source": "./",
       "description": "Unified access to 10+ LLM providers (OpenAI, Anthropic, Google, Deepseek, Mistral, xAI, and more) for text generation, vision analysis, image generation, and video generation through a single API.",
       "version": "1.0.0"
     }
