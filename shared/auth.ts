@@ -56,6 +56,26 @@ const DEFAULT_CREDENTIALS_FILE = path.join(DEFAULT_CONFIG_DIR, 'credentials.json
 const SECURE_FILE_PERMISSIONS = 0o600;
 
 /**
+ * Custom error class for auth failures.
+ * Never includes API key material in messages or stack traces.
+ */
+export class OatdaAuthError extends Error {
+  constructor(message: string) {
+    // Sanitize any accidental key material before storing
+    super(OatdaAuthError.sanitize(message));
+    this.name = 'OatdaAuthError';
+  }
+
+  /** Redact anything that looks like an API key */
+  static sanitize(text: string): string {
+    return text.replace(
+      /\b(oatda_|sk_|oatda-)[A-Za-z0-9_-]{16,}\b/g,
+      '[REDACTED]'
+    );
+  }
+}
+
+/**
  * OATDA Authentication Manager
  */
 export class OatdaAuth {
@@ -103,11 +123,11 @@ export class OatdaAuth {
       return envKey;
     }
 
-    throw new Error(
+    throw new OatdaAuthError(
       'No API key found. Configure one of:\n' +
       '  1. Config file: ~/.oatda/credentials.json\n' +
-      '  2. Environment: OATDA_API_KEY=xxx\n' +
-      '  3. Direct parameter: apiKey="xxx"\n\n' +
+      '  2. Environment: OATDA_API_KEY=your_key\n' +
+      '  3. Direct parameter: apiKey option\n\n' +
       'Get your API key at: https://oatda.com/dashboard/api-keys'
     );
   }

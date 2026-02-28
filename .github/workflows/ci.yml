@@ -1,0 +1,115 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  typecheck:
+    name: Type Check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - run: npm ci
+
+      - name: TypeScript type check
+        run: npx tsc --noEmit
+
+  lint-skills:
+    name: Validate Skill Files
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check skill.md files exist
+        run: |
+          SKILLS=(
+            "oatda-text-completion"
+            "oatda-vision-analysis"
+            "oatda-generate-image"
+            "oatda-generate-video"
+            "oatda-video-status"
+            "oatda-list-models"
+          )
+          
+          for skill in "${SKILLS[@]}"; do
+            if [ ! -f "skills/$skill/skill.md" ]; then
+              echo "❌ Missing: skills/$skill/skill.md"
+              exit 1
+            fi
+            if [ ! -f "skills/$skill/handler.ts" ]; then
+              echo "❌ Missing: skills/$skill/handler.ts"
+              exit 1
+            fi
+            echo "✅ skills/$skill/ — OK"
+          done
+
+      - name: Check skill.md frontmatter
+        run: |
+          for skill_file in skills/*/skill.md; do
+            # Ensure each skill.md has required frontmatter fields
+            if ! grep -q "^name:" "$skill_file"; then
+              echo "❌ $skill_file missing 'name' in frontmatter"
+              exit 1
+            fi
+            if ! grep -q "^description:" "$skill_file"; then
+              echo "❌ $skill_file missing 'description' in frontmatter"
+              exit 1
+            fi
+            echo "✅ $skill_file — frontmatter OK"
+          done
+
+  secrets-scan:
+    name: Secrets Scan
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      - name: Scan for API keys and secrets
+        run: |
+          # Check for common secret patterns in source files
+          PATTERNS=(
+            'oatda_[A-Za-z0-9_-]{20,}'
+            'sk_[A-Za-z0-9_-]{20,}'
+            'OATDA_API_KEY\s*=\s*["\x27][^"\x27]{20,}'
+          )
+          
+          FOUND=0
+          for pattern in "${PATTERNS[@]}"; do
+            MATCHES=$(grep -rnE "$pattern" --include="*.ts" --include="*.md" --include="*.json" . \
+              | grep -v node_modules \
+              | grep -v ".example" \
+              | grep -v "your_api_key" \
+              | grep -v "your_key_here" \
+              | grep -v "credentials.json" \
+              | grep -v "\.gitignore" \
+              || true)
+            
+            if [ -n "$MATCHES" ]; then
+              echo "⚠️  Potential secret found matching pattern: $pattern"
+              echo "$MATCHES"
+              FOUND=1
+            fi
+          done
+          
+          if [ "$FOUND" -eq 1 ]; then
+            echo ""
+            echo "❌ Potential secrets detected. Review the above matches."
+            echo "   If they are false positives (examples, docs), this is OK."
+            # Don't fail the build, just warn
+          else
+            echo "✅ No secrets detected"
+          fi

@@ -3,7 +3,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Version](https://img.shields.io/github/v/release/devcsde/oatda-skills)](https://github.com/devcsde/oatda-skills/releases)
 
-OATDA (One API To Direct All) provides unified access to 13+ LLM providers through a single API. This repository contains Claude Code skills for easy integration.
+OATDA (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This repository contains Claude Code skills for easy integration.
 
 ## Supported Providers
 
@@ -18,9 +18,7 @@ OATDA (One API To Direct All) provides unified access to 13+ LLM providers throu
 | Alibaba | ✅ | - | ✅ (Wan) |
 | MiniMax | ✅ | ✅ | ✅ |
 | ZAI | ✅ | - | ✅ |
-| Groq | ✅ | - | - |
 | Moonshot | ✅ | - | - |
-| Baseten | ✅ | - | - |
 
 ## Installation
 
@@ -79,7 +77,7 @@ chmod 600 ~/.oatda/credentials.json
 
 | Skill | Description | MCP Equivalent |
 |-------|-------------|----------------|
-| `oatda-text-completion` | Text generation from 13+ providers with streaming | `chat_completion` |
+| `oatda-text-completion` | Text generation from 10+ providers with streaming | `chat_completion` |
 | `oatda-vision-analysis` | Image analysis with vision models | `vision_analysis` |
 | `oatda-generate-image` | Image generation (DALL-E, Imagen, Qwen, MiniMax) | `generate_image` |
 | `oatda-generate-video` | Video generation (async, returns task ID) | `generate_video` |

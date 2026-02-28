@@ -66,11 +66,15 @@
     "LICENSE"
   ],
   "scripts": {
+    "typecheck": "tsc --noEmit",
     "test": "echo \"Run tests with: npx tsx tests/integration/*.test.ts\"",
-    "lint": "echo \"No linting configured yet\"",
-    "format": "echo \"No formatting configured yet\""
+    "lint": "tsc --noEmit"
   },
   "engines": {
     "node": ">=18.0.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.3.2",
+    "typescript": "^5.9.3"
   }
 }

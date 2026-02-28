@@ -1,16 +1,12 @@
 ---
 name: oatda-text-completion
-description: Generate text using any of OATDA's 13+ LLM providers (OpenAI, Anthropic, Google, Deepseek, Mistral, xAI, Alibaba, Chutes, MiniMax, ZAI, Groq, Moonshot, Baseten)
-version: 1.0.0
-author: OATDA Team
+description: Generate text using any of OATDA's 10+ LLM providers (OpenAI, Anthropic, Google, Deepseek, Mistral, xAI, Alibaba, MiniMax, ZAI, Moonshot)
 license: Apache-2.0
-tags: [llm, text-generation, chat, completion, openai, anthropic, google]
-homepage: https://github.com/devcsde/oatda-skills
 ---
 
 # OATDA Text Completion
 
-Generate text using any of OATDA's 13+ LLM providers through a unified interface.
+Generate text using any of OATDA's 10+ LLM providers through a unified interface.
 
 ## Supported Providers
 
@@ -23,9 +19,7 @@ Generate text using any of OATDA's 13+ LLM providers through a unified interface
 - **Alibaba**: Qwen Max, Qwen Plus, Qwen Turbo
 - **MiniMax**: MiniMax Text-01
 - **ZAI**: ZAI-7B, ZAI-13B
-- **Groq**: Llama 3.3 70B, Mixtral 8x7B
 - **Moonshot**: Moonshot-v1-8k, Moonshot-v1-32k
-- **Baseten**: Various hosted models
 
 ## Setup
 

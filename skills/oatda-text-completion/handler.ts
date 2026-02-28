@@ -1,15 +1,19 @@
 /**
  * OATDA Text Completion Skill Handler
  *
- * Core implementation that connects to OATDA API
- * and returns formatted results to Claude Code.
+ * Core implementation that connects to the OATDA REST API
+ * (POST /api/v1/llm) and returns formatted results.
  *
  * This skill generates text using any of OATDA's 13+ LLM providers.
  *
  * @module oatda-text-completion
  */
 
-import { OatdaClient, type ChatCompletionParams } from '../../shared/client.js';
+import {
+  OatdaClient,
+  type ChatCompletionParams,
+  type ChatCompletionResponse,
+} from '../../shared/client.js';
 import { OatdaAuth } from '../../shared/auth.js';
 
 /**
@@ -31,8 +35,6 @@ export interface TextCompletionResult {
   /** Cost information */
   cost?: {
     total: number;
-    input: number;
-    output: number;
     currency: string;
   };
 }
@@ -42,7 +44,8 @@ export interface TextCompletionResult {
  *
  * @param params - Completion parameters
  * @param params.model - Model identifier (e.g., "openai/gpt-4o")
- * @param params.messages - Conversation messages
+ * @param params.prompt - Prompt string (or use params.messages)
+ * @param params.messages - Conversation messages (converted to prompt)
  * @param params.temperature - Sampling temperature (0-2)
  * @param params.maxTokens - Maximum tokens to generate
  * @param params.stream - Enable streaming response
@@ -73,19 +76,24 @@ export async function oatdaTextCompletion(
     );
   }
 
-  // Extract model and provider
+  // Extract response data
+  const data = response.data as ChatCompletionResponse;
   const [provider, modelName] = params.model.split('/');
 
   return {
-    text: response.data as string,
-    model: modelName,
-    provider,
-    usage: response.usage,
+    text: data?.response || String(data || ''),
+    model: data?.model || modelName,
+    provider: data?.provider || provider,
+    usage: response.usage
+      ? {
+          promptTokens: response.usage.promptTokens,
+          completionTokens: response.usage.completionTokens,
+          totalTokens: response.usage.totalTokens,
+        }
+      : undefined,
     cost: response.usage
       ? {
           total: response.usage.cost,
-          input: 0, // Not provided by API
-          output: 0, // Not provided by API
           currency: 'USD',
         }
       : undefined,
