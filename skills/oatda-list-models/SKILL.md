@@ -56,34 +56,34 @@ Parse the user's request for optional filters:
 **List all models** (no filters):
 
 ```bash
-curl -s -X GET "https://oatda.com/api/v1/models" \
+curl -s -X GET "https://oatda.com/api/v1/llm/models" \
   -H "Authorization: Bearer $OATDA_API_KEY"
 ```
 
 **Filter by type**:
 
 ```bash
-curl -s -X GET "https://oatda.com/api/v1/models?type=chat" \
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=chat" \
   -H "Authorization: Bearer $OATDA_API_KEY"
 ```
 
 **Filter by provider**:
 
 ```bash
-curl -s -X GET "https://oatda.com/api/v1/models?provider=openai" \
+curl -s -X GET "https://oatda.com/api/v1/llm/models?provider=openai" \
   -H "Authorization: Bearer $OATDA_API_KEY"
 ```
 
 **Combine filters**:
 
 ```bash
-curl -s -X GET "https://oatda.com/api/v1/models?type=image&provider=openai" \
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=image&provider=openai" \
   -H "Authorization: Bearer $OATDA_API_KEY"
 ```
 
 ### 4. Parse the response
 
-The API returns an OpenAI-compatible format. The exact structure may include:
+The API returns an OpenAI-compatible format. Image and video models include `supported_params` showing model-specific parameters:
 
 ```json
 {
@@ -97,15 +97,73 @@ The API returns an OpenAI-compatible format. The exact structure may include:
     {"id": "anthropic/claude-3-5-sonnet", "provider": "anthropic", "model": "claude-3-5-sonnet", "displayName": "Claude 3.5 Sonnet"}
   ],
   "imageModels": [
-    {"id": "openai/dall-e-3", "provider": "openai", "model": "dall-e-3", "displayName": "DALL-E 3"}
+    {
+      "id": "openai/dall-e-3",
+      "provider": "openai",
+      "model": "dall-e-3",
+      "displayName": "DALL-E 3",
+      "supported_params": {
+        "style": {"type": "string", "values": ["vivid", "natural"], "default": "vivid"},
+        "quality": {"type": "string", "values": ["standard", "hd"], "default": "standard"}
+      }
+    }
   ],
   "videoModels": [
-    {"id": "minimax/T2V-01", "provider": "minimax", "model": "T2V-01", "displayName": "MiniMax T2V-01"}
+    {
+      "id": "bytedance/seedance-1-5-pro-251215",
+      "provider": "bytedance",
+      "model": "seedance-1-5-pro-251215",
+      "displayName": "Seedance 1.5 Pro",
+      "supported_params": {
+        "ratio": {"type": "string", "values": ["16:9", "9:16", "1:1"], "default": "16:9"},
+        "duration": {"type": "string", "values": ["5", "10"], "default": "5"},
+        "generate_audio": {"type": "boolean", "default": false, "optional": true},
+        "camera_fixed": {"type": "boolean", "default": false, "optional": true},
+        "first_frame_image": {"type": "file", "accept": "image/*", "optional": true, "description": "Starting frame image URL"},
+        "last_frame_image": {"type": "file", "accept": "image/*", "optional": true, "description": "Ending frame image URL"}
+      }
+    }
   ]
 }
 ```
 
-### 5. Present results
+### 5. Understanding supported_params
+
+Image and video models include a `supported_params` object that describes model-specific parameters. Use this to discover what parameters each model accepts before generating.
+
+**Structure of each parameter**:
+
+| Field | Type | Description |
+|-------|------|-------------|
+| `type` | string | Parameter type: `string`, `number`, `boolean`, or `file` |
+| `values` | array | Allowed values (for enum-type strings) |
+| `default` | any | Default value if not specified |
+| `description` | string | Human-readable description |
+| `optional` | boolean | Whether the parameter is optional |
+| `accept` | string | For `file` types: accepted MIME types (e.g., `"image/*"`) |
+| `min` / `max` | number | Range constraints for numeric values |
+
+**File-type parameters**: Parameters with `type: "file"` require a publicly accessible URL (https://...), not local file paths. Examples include `mask`, `first_frame_image`, `last_frame_image`.
+
+**Example - Discovering image model params**:
+
+```bash
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=image&provider=bytedance" \
+  -H "Authorization: Bearer $OATDA_API_KEY" | jq '.image_models[].supported_params'
+```
+
+This reveals that Bytedance Seedream supports: `size`, `watermark`, `seed`, `negative_prompt`, etc.
+
+**Example - Discovering video model params**:
+
+```bash
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=video&provider=bytedance" \
+  -H "Authorization: Bearer $OATDA_API_KEY" | jq '.video_models[].supported_params'
+```
+
+This reveals that Seedance supports: `ratio`, `duration`, `generate_audio`, `camera_fixed`, `first_frame_image`, `last_frame_image`, etc.
+
+### 6. Present results
 
 Format the models in a readable way, organized by category:
 
@@ -124,7 +182,7 @@ Format the models in a readable way, organized by category:
 
 If the response format differs (e.g., flat `data` array with `id` and `object` fields), adapt accordingly and group by provider or capability.
 
-### 6. Handle errors
+### 7. Handle errors
 
 | HTTP Status | Meaning | Action |
 |-------------|---------|--------|
@@ -136,21 +194,32 @@ If the response format differs (e.g., flat `data` array with `id` and `object` f
 User asks: "What OpenAI models are available?"
 
 ```bash
-curl -s -X GET "https://oatda.com/api/v1/models?provider=openai" \
+curl -s -X GET "https://oatda.com/api/v1/llm/models?provider=openai" \
   -H "Authorization: Bearer $OATDA_API_KEY"
 ```
 
 User asks: "Show me all image generation models"
 
 ```bash
-curl -s -X GET "https://oatda.com/api/v1/models?type=image" \
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=image" \
   -H "Authorization: Bearer $OATDA_API_KEY"
 ```
+
+User asks: "What parameters does Seedance video model support?"
+
+```bash
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=video&provider=bytedance" \
+  -H "Authorization: Bearer $OATDA_API_KEY" | jq '.video_models[] | select(.model | contains("seedance")) | .supported_params'
+```
+
+This returns all supported parameters for Seedance, including `ratio`, `duration`, `generate_audio`, `camera_fixed`, `first_frame_image`, `last_frame_image`, etc.
 
 ## Tips
 
 - This is a GET request with query parameters, not POST
 - Use this skill to help users find the right model for other OATDA skills
 - The `id` field (e.g., `openai/gpt-4o`) is the model identifier used in other skills
+- **Use `supported_params` to discover model-specific parameters before generating images or videos**
+- For file-type params (mask, reference images), provide publicly accessible URLs
 - NEVER expose the full API key in output
 - Related skills: `/oatda:oatda-text-completion`, `/oatda:oatda-generate-image`, `/oatda:oatda-generate-video`, `/oatda:oatda-vision-analysis`

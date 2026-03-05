@@ -54,10 +54,35 @@ Map common aliases:
 | dall-e, dall-e-3 (default) | openai | dall-e-3 |
 | gpt-image | openai | gpt-image-1 |
 | imagen | google | imagen-4.0-generate-001 |
+| seedream | bytedance | seedream-4-5-251128 |
+| wan | alibaba | wan2.6-t2i |
+| minimax image | minimax | image-01 |
+| grok image | xai | grok-imagine-image |
 
 **Default**: `openai` / `dall-e-3` if no model specified.
 
-### 3. Make the API call
+### 3. Discover model-specific parameters
+
+**IMPORTANT**: Different models support different parameters (sizes, quality levels, styles, masks, watermarks, negative prompts, etc.). Before generating, discover what parameters a model supports:
+
+```bash
+curl -s -X GET "https://oatda.com/api/v1/llm/models?type=image" \
+  -H "Authorization: Bearer $OATDA_API_KEY" | jq '.image_models[] | {id, supported_params}'
+```
+
+This returns each image model's `supported_params` with:
+- `type`: Parameter type (string, number, boolean, file)
+- `values`: Allowed values for enums
+- `default`: Default value
+- `description`: What the parameter does
+- `optional`: Whether it's required
+- `accept`: For file types, what's accepted (e.g., "image/*")
+
+**File-type parameters**: Parameters like `mask` or reference images require publicly accessible URLs (https://...), not local file paths.
+
+Pass model-specific parameters via the `model_params` object (see examples below).
+
+### 4. Make the API call
 
 ```bash
 curl -s -X POST "https://oatda.com/api/v1/llm/generate-image" \
@@ -83,15 +108,21 @@ Replace `<PROVIDER>`, `<MODEL>`, and `<IMAGE_DESCRIPTION>` with actual values.
 
 **Parameters**:
 - `prompt`: Image description (1-4000 characters)
-- `size`: Dimensions — `"1024x1024"`, `"1792x1024"`, `"1024x1792"`
+- `size`: Dimensions — `"1024x1024"`, `"1792x1024"`, `"1024x1792"`, or `"2K"`, `"4K"` (model-dependent)
 - `quality`: `"standard"`, `"hd"`, `"auto"`, `"low"`, `"medium"`, `"high"`
 - `n` and `numberOfImages`: Number of images (1-10), set both to the same value
 - `aspectRatio`: `"1:1"`, `"16:9"`, `"9:16"`, `"3:2"`, `"2:3"`, `"4:3"`, `"3:4"`, etc.
 - `style`: `"vivid"` (dramatic, hyper-real) or `"natural"` (realistic)
 - `background`: `"auto"`, `"transparent"`, or `"opaque"`
 - `outputFormat`: `"png"`, `"jpeg"`, or `"webp"`
+- `model_params`: **Model-specific parameters** as key-value pairs. Use `list_models?type=image` or `/api/v1/llm/models` to discover supported params per model. Examples:
+  - DALL-E 3: `{ "style": "vivid", "quality": "hd" }`
+  - GPT-Image-1: `{ "quality": "high", "background": "transparent", "outputFormat": "png" }`
+  - Imagen 4: `{ "sampleImageSize": "2K", "personGeneration": "allow_adult" }`
+  - Seedream: `{ "size": "4K", "watermark": false }`
+  - Wan 2.6: `{ "seed": "42", "negative_prompt": "blurry", "prompt_extend": true }`
 
-### 4. Parse the response
+### 5. Parse the response
 
 ```json
 {
@@ -108,7 +139,7 @@ Replace `<PROVIDER>`, `<MODEL>`, and `<IMAGE_DESCRIPTION>` with actual values.
 - Show the image URL(s) to the user (from `all_images` array, or `url` field if single image)
 - If `revised_prompt` is present, mention how the model expanded the prompt
 
-### 5. Handle errors
+### 6. Handle errors
 
 | HTTP Status | Meaning | Action |
 |-------------|---------|--------|
@@ -117,7 +148,9 @@ Replace `<PROVIDER>`, `<MODEL>`, and `<IMAGE_DESCRIPTION>` with actual values.
 | 429 | Rate limited | Wait 5 seconds and retry once |
 | 400 with content_policy | Content policy violation | Ask user to adjust the description |
 
-## Full Example
+## Full Examples
+
+### DALL-E 3
 
 User asks: "Generate an image of a cyberpunk city at night using DALL-E 3"
 
@@ -133,7 +166,68 @@ curl -s -X POST "https://oatda.com/api/v1/llm/generate-image" \
     "quality": "hd",
     "n": 1,
     "numberOfImages": 1,
-    "style": "vivid"
+    "model_params": {
+      "style": "vivid"
+    }
+  }'
+```
+
+### GPT-Image-1 with transparent background
+
+User asks: "Generate a transparent PNG logo"
+
+```bash
+curl -s -X POST "https://oatda.com/api/v1/llm/generate-image" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OATDA_API_KEY" \
+  -d '{
+    "provider": "openai",
+    "model": "gpt-image-1",
+    "prompt": "A sleek minimalist logo of a mountain, clean vector style",
+    "n": 1,
+    "model_params": {
+      "quality": "high",
+      "background": "transparent",
+      "outputFormat": "png"
+    }
+  }'
+```
+
+### Bytedance Seedream (no watermark)
+
+User asks: "Generate a 4K image without watermark using Seedream"
+
+```bash
+curl -s -X POST "https://oatda.com/api/v1/llm/generate-image" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OATDA_API_KEY" \
+  -d '{
+    "provider": "bytedance",
+    "model": "seedream-4-5-251128",
+    "prompt": "A majestic dragon flying over a fantasy kingdom at sunset",
+    "model_params": {
+      "size": "4K",
+      "watermark": false
+    }
+  }'
+```
+
+### Alibaba Wan 2.6 with negative prompt
+
+User asks: "Generate an image avoiding blurry elements"
+
+```bash
+curl -s -X POST "https://oatda.com/api/v1/llm/generate-image" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OATDA_API_KEY" \
+  -d '{
+    "provider": "alibaba",
+    "model": "wan2.6-t2i",
+    "prompt": "A sharp detailed portrait of a warrior in ornate armor",
+    "model_params": {
+      "negative_prompt": "blurry, low quality, distorted",
+      "seed": "42"
+    }
   }'
 ```
 
@@ -142,6 +236,8 @@ curl -s -X POST "https://oatda.com/api/v1/llm/generate-image" \
 - The endpoint is `/api/v1/llm/generate-image` — do NOT confuse with `/api/v1/llm/image` (that's vision)
 - DALL-E 3 costs ~$0.04/image (standard), ~$0.08/image (HD)
 - Set both `n` and `numberOfImages` to the same value for compatibility
+- **Use `list_models?type=image` to discover model-specific parameters before generating**
+- **Use `model_params` for model-specific options (watermark, negative_prompt, seed, etc.)**
 - Image URLs may be temporary — recommend downloading promptly
 - Maximum prompt length is 4000 characters
 - NEVER expose the full API key in output
