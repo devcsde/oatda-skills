@@ -3,22 +3,22 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](https://code.claude.com/docs/en/plugins)
 
-[OATDA](https://oatda.com) (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This [Claude Code plugin](https://code.claude.com/docs/en/plugins) adds skills for text generation, vision analysis, image generation, and video generation.
+[OATDA](https://oatda.com) (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This [Claude Code plugin](https://code.claude.com/docs/en/plugins) adds skills for text generation, vision analysis, image generation, video generation, and audio generation/transcription/translation.
 
 ## Supported Providers
 
-| Provider | Chat | Image | Video |
-|----------|------|-------|-------|
-| OpenAI | ✅ | ✅ (DALL-E, GPT-Image) | ✅ (Sora) |
-| Anthropic | ✅ | - | - |
-| Google | ✅ | ✅ (Imagen) | ✅ (Veo) |
-| Deepseek | ✅ | - | - |
-| Mistral | ✅ | - | - |
-| xAI | ✅ | ✅ | - |
-| Alibaba | ✅ | ✅ (Qwen) | ✅ (Wan) |
-| MiniMax | ✅ | ✅ | ✅ (T2V-01) |
-| ZAI | ✅ | - | ✅ |
-| Moonshot | ✅ | - | - |
+| Provider | Chat | Image | Video | Audio |
+|----------|------|-------|-------|-------|
+| OpenAI | ✅ | ✅ (DALL-E, GPT-Image) | ✅ (Sora) | ✅ (TTS, Whisper) |
+| Anthropic | ✅ | - | - | - |
+| Google | ✅ | ✅ (Imagen) | ✅ (Veo) | - |
+| Deepseek | ✅ | - | - | - |
+| Mistral | ✅ | - | - | - |
+| xAI | ✅ | ✅ | - | - |
+| Alibaba | ✅ | ✅ (Qwen) | ✅ (Wan) | - |
+| MiniMax | ✅ | ✅ | ✅ (T2V-01) | - |
+| ZAI | ✅ | - | ✅ | ✅ (transcription) |
+| Moonshot | ✅ | - | - | - |
 
 ## Installation
 
@@ -96,6 +96,9 @@ chmod 600 ~/.oatda/credentials.json
 | Image Generation | `/oatda:oatda-generate-image` | Generate images from text descriptions |
 | Video Generation | `/oatda:oatda-generate-video` | Generate videos (async, returns task ID) |
 | Video Status | `/oatda:oatda-video-status` | Check video generation task status |
+| Speech Generation | `/oatda:oatda-generate-speech` | Generate speech/audio from text (TTS) |
+| Audio Transcription | `/oatda:oatda-transcribe-audio` | Transcribe audio recordings to text |
+| Audio Translation | `/oatda:oatda-translate-audio` | Translate foreign-language audio to English text |
 | List Models | `/oatda:oatda-list-models` | List available models with filtering |
 
 Claude will also invoke these skills automatically when relevant to your conversation.
@@ -136,6 +139,24 @@ Then check status:
 /oatda:oatda-video-status <task-id>
 ```
 
+### Speech Generation
+
+```
+/oatda:oatda-generate-speech Convert this announcement to speech using openai/tts-1 with alloy voice
+```
+
+### Audio Transcription
+
+```
+/oatda:oatda-transcribe-audio Transcribe this meeting recording using openai/whisper-1
+```
+
+### Audio Translation
+
+```
+/oatda:oatda-translate-audio Translate this French audio to English using openai/whisper-1
+```
+
 ### List Models
 
 ```
@@ -163,6 +184,12 @@ oatda-skills/
 │   │   └── SKILL.md         # Video generation skill
 │   ├── oatda-video-status/
 │   │   └── SKILL.md         # Video status checking skill
+│   ├── oatda-generate-speech/
+│   │   └── SKILL.md         # Text-to-speech audio generation skill
+│   ├── oatda-transcribe-audio/
+│   │   └── SKILL.md         # Speech-to-text transcription skill
+│   ├── oatda-translate-audio/
+│   │   └── SKILL.md         # Audio translation to English skill
 │   └── oatda-list-models/
 │       └── SKILL.md         # Model listing skill
 ├── scripts/
@@ -182,7 +209,11 @@ All skills communicate with the OATDA REST API:
 | `/api/v1/llm/generate-image` | POST | Image generation |
 | `/api/v1/llm/generate-video?async=true` | POST | Video generation |
 | `/api/v1/llm/video-status/{taskId}` | GET | Video status |
+| `/api/v1/llm/speech` | POST | Text-to-speech audio generation |
+| `/api/v1/llm/transcriptions` | POST | Speech-to-text transcription |
+| `/api/v1/llm/translations` | POST | Audio translation to English |
 | `/api/v1/models` | GET | List models |
+| `/api/v1/llm/models?type=audio` | GET | List audio-capable models |
 
 Authentication: `Authorization: Bearer <api_key>` header on all requests.
 

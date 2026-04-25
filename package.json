@@ -1,7 +1,7 @@
 {
   "name": "@oatda-ai/skills",
-  "version": "1.0.1",
-  "description": "OATDA skills plugin for Claude Code — Unified access to 10+ LLM providers (OpenAI, Anthropic, Google, and more)",
+  "version": "1.1.0",
+  "description": "OATDA skills plugin for Claude Code — Unified access to 10+ LLM providers for text, vision, image, video, and audio generation/transcription/translation",
   "author": "devcsde",
   "license": "Apache-2.0",
   "repository": {
@@ -21,7 +21,13 @@
     "skills",
     "openai",
     "anthropic",
-    "google"
+    "google",
+    "audio",
+    "tts",
+    "speech-to-text",
+    "transcription",
+    "translation",
+    "whisper"
   ],
   "files": [
     ".claude-plugin/",
