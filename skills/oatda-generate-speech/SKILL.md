@@ -1,6 +1,6 @@
 ---
 name: oatda-generate-speech
-description: Use when the user wants to generate speech/audio from text using OATDA's unified audio API. Supports text-to-speech (TTS), voiceovers, accessibility audio, and the generate_speech MCP capability with models such as OpenAI TTS.
+description: Use when the user wants to generate speech/audio from text using OATDA's unified audio API. MCP generate_speech returns MCP audio content (client saves/plays; no server storage). HTTP /api/v1/llm/speech returns a file via curl --output. Supports OpenAI TTS, xAI grok-tts, voiceovers, and accessibility audio.
 ---
 
 # OATDA Speech Generation
@@ -14,6 +14,19 @@ Use this skill when the user wants to:
 - Create voiceovers, announcements, narration, or accessibility audio
 - Use TTS models such as OpenAI `tts-1` through OATDA
 - Use the OATDA `generate_speech` capability
+
+## HTTP vs MCP (read this first)
+
+| Path | Response | Use when |
+|------|----------|----------|
+| **MCP** `generate_speech` | **MCP `audio` content block** (base64 in protocol; client saves/plays) + metadata in `structuredContent` | Already connected to OATDA MCP (Cursor, etc.) — **no OATDA file storage** |
+| **HTTP** `POST /api/v1/llm/speech` | Raw audio bytes (`Content-Disposition: attachment`) | Shell/scripts: `curl --output speech.mp3` |
+
+**Upstream providers (OpenAI TTS, xAI Grok TTS) do not return a hosted download URL** for speech. xAI returns raw bytes (`curl … --output hello.mp3` in [their docs](https://docs.x.ai/docs/guides/voice)). Unlike `grok-imagine-image`, there is no provider CDN link for TTS.
+
+**MCP agents:** After `generate_speech`, use the **attached audio content** from the tool result (MCP spec `AudioContent`). Do not tell the user to “decode base64 manually” — save or play via the MCP client. Metadata (`format`, `duration_seconds`, `costs`) is in `structuredContent` without duplicating the audio blob.
+
+**Shell/scripts:** Prefer HTTP with `--output` (see step 4).
 
 ## Prerequisites
 
@@ -54,12 +67,15 @@ Map common aliases:
 | tts, tts-1, openai tts (default) | openai | tts-1 |
 | tts hd, tts-1-hd | openai | tts-1-hd |
 | gpt tts, gpt-4o mini tts | openai | gpt-4o-mini-tts |
+| grok tts, xai tts, grok-tts | xai | grok-tts |
 
 **Default**: `openai` / `tts-1` if no model is specified.
 
-If the user provides `provider/model` format directly (e.g., `openai/tts-1`), split on `/` to get separate `provider` and `model` values.
+If the user provides `provider/model` format directly (e.g., `openai/tts-1` or `xai/grok-tts`), split on `/` to get separate `provider` and `model` values for the JSON body.
 
-Common OpenAI voices include `alloy`, `ash`, `ballad`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, and `shimmer`. Use `alloy` if the user does not specify a voice.
+**OpenAI voices** (parameter `voice`): `alloy`, `ash`, `ballad`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, `shimmer`. Default `alloy`.
+
+**xAI Grok TTS** (same `voice` field; OATDA maps to xAI `voice_id`): e.g. `eve`, `ara`, `rex`, `sal`, `una`, `leo`. Default `eve`. Supports `language` (e.g. `en`, `de`, or `auto`). Formats include `mp3`, `wav`, `pcm`, `mulaw`, `alaw`. **Do not send `speed`** to xAI — it is ignored/filtered. Max input **15 000** characters for `grok-tts`.
 
 ### 3. Optional: discover available audio models
 
@@ -70,9 +86,9 @@ curl -s -X GET "https://oatda.com/api/v1/llm/models?type=audio" \
 
 Use `supported_params` to confirm model-specific options before sending optional fields.
 
-### 4. Make the API call
+### 4. Make the HTTP API call (preferred)
 
-The speech endpoint returns **binary audio**, not JSON. Save the response to a file.
+The speech endpoint returns **binary audio**, not JSON and **not a URL**. Always save with `--output` (same pattern as xAI’s official TTS examples).
 
 ```bash
 curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
@@ -101,10 +117,33 @@ Replace `<PROVIDER>`, `<MODEL>`, and `<TEXT_TO_SPEAK>` with actual values.
 
 ### 5. Present the result
 
-If the request succeeds, tell the user where the audio file was saved, e.g.:
-> Speech generated successfully: `speech.mp3`
+If the request succeeds, tell the user the **absolute or workspace path** to the saved file, e.g.:
+> Speech generated successfully: `speech.mp3` (binary MP3, ready to play)
 
 If you need to inspect the response headers, use `curl -D headers.txt` while still saving the body to an audio file.
+
+### MCP `generate_speech`
+
+1. Call with `model` (e.g. `xai/grok-tts`, `openai/tts-1`), `text`, optional `voice`, `response_format`.
+2. The tool result includes an **`audio` content block** (`mimeType` + `data`) per the MCP spec — use your client to save or play it (e.g. write `speech.mp3` in the workspace).
+3. Use `structuredContent` for billing/metadata only (`format`, `duration_seconds`, `costs`) — not for the audio bytes.
+
+### xAI example (HTTP)
+
+```bash
+curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
+  -H "Content-Type: application/json" \
+  -H "Authorization: Bearer $OATDA_API_KEY" \
+  -d '{
+    "provider": "xai",
+    "model": "grok-tts",
+    "input": "Hallo, das ist ein Test mit Grok TTS.",
+    "voice": "eve",
+    "language": "de",
+    "response_format": "mp3"
+  }' \
+  --output grok-speech.mp3
+```
 
 ### 6. Handle errors
 
@@ -139,9 +178,11 @@ curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
 
 - The endpoint is `/api/v1/llm/speech`.
 - Use `input`, not `prompt`, for text-to-speech requests.
-- The response is an audio file; always save it with `--output`.
-- For model discovery, use `/api/v1/llm/models?type=audio`.
-- Keep text under 15000 characters.
+- **HTTP:** response body = audio bytes; always use `curl --output <file>`. **Not** a JSON URL.
+- **MCP:** returns spec **`audio` content** in the tool result; OATDA does not store speech files on disk.
+- TTS is **not** like image generation: `grok-imagine-image` may return an HTTPS URL; `grok-tts` does not.
+- For model discovery, use `/api/v1/llm/models?type=audio` or MCP `list_models` with `type="audio"`.
+- Keep text under 15000 characters (stricter limits may apply per model).
 - NEVER expose the full API key in output.
-- Equivalent MCP tool name: `generate_speech`.
+- MCP tool name: `generate_speech` (audio content block, no server-side artifact storage).
 - Related skills: `/oatda:oatda-list-models`, `/oatda:oatda-transcribe-audio`, `/oatda:oatda-translate-audio`.
