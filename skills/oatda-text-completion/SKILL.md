@@ -53,20 +53,28 @@ Parse the user's request for a model. Map common aliases to `provider/model` for
 |-----------|----------|-------|
 | gpt-4o | openai | gpt-4o |
 | gpt-4o-mini | openai | gpt-4o-mini |
+| gpt-5 | openai | gpt-5 |
+| gpt-5-mini | openai | gpt-5-mini |
 | o1 | openai | o1 |
-| claude, sonnet | anthropic | claude-3-5-sonnet |
-| haiku | anthropic | claude-3-5-haiku |
-| opus | anthropic | claude-3-opus |
-| gemini | google | gemini-2.0-flash |
-| gemini-1.5 | google | gemini-1.5-pro |
-| deepseek | deepseek | deepseek-chat |
-| mistral | mistral | mistral-large |
-| grok | xai | grok-2 |
-| qwen | alibaba | qwen-max |
+| o3 | openai | o3 |
+| claude, sonnet | anthropic | claude-sonnet-4-5-20250929 |
+| haiku | anthropic | claude-haiku-4-5-20251001 |
+| opus | anthropic | claude-opus-4-5-20251101 |
+| gemini | google | gemini-3-pro-preview |
+| gemini-2.5 | google | gemini-2.5-pro |
+| deepseek | deepseek | deepseek-v4-pro |
+| mistral | mistral | mistral-large-latest |
+| grok | xai | grok-4-fast |
+| grok-4 | xai | grok-4-1-fast-reasoning |
+| qwen | alibaba | qwen3-max |
+| kimi, moonshot | moonshot | kimi-k2.7-code |
+| glm | zai | glm-5 |
 
 **Default**: `openai` / `gpt-4o` if no model is specified.
 
 If the user provides `provider/model` format directly (e.g., `openai/gpt-4o`), split on `/` to get the separate `provider` and `model` values.
+
+> ⚠️ Models update frequently. If a model ID fails, query `/oatda:oatda-list-models` or `GET https://oatda.com/api/v1/models` for the latest available models.
 
 ### 3. Make the API call
 
@@ -131,7 +139,7 @@ curl -s -X POST "https://oatda.com/api/v1/llm" \
   -H "Authorization: Bearer $OATDA_API_KEY" \
   -d '{
     "provider": "anthropic",
-    "model": "claude-3-5-sonnet",
+    "model": "claude-sonnet-4-5-20250929",
     "prompt": "Write a haiku about code",
     "temperature": 0.7,
     "maxTokens": 256

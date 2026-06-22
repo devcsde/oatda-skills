@@ -53,11 +53,16 @@ Map common aliases to `provider/model` format:
 |-----------|----------|-------|
 | gpt-4o (default) | openai | gpt-4o |
 | gpt-4o-mini | openai | gpt-4o-mini |
-| claude, sonnet | anthropic | claude-3-5-sonnet |
-| gemini | google | gemini-2.0-flash |
-| gemini-1.5 | google | gemini-1.5-pro |
+| gpt-5 | openai | gpt-5 |
+| claude, sonnet | anthropic | claude-sonnet-4-5-20250929 |
+| opus | anthropic | claude-opus-4-5-20251101 |
+| gemini | google | gemini-3-pro-preview |
+| gemini-2.5 | google | gemini-2.5-pro |
+| glm-v | zai | glm-4.6v |
 
 **Default**: `openai` / `gpt-4o` if no model specified.
+
+> ⚠️ Models update frequently. If a model ID fails, query `/oatda:oatda-list-models` with `type=vision` for the latest vision-capable models.
 
 ### 3. Validate the image URL
 

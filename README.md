@@ -1,9 +1,13 @@
 # OATDA Skills Plugin for Claude Code
 
+[![Version](https://img.shields.io/badge/version-1.2.0-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](https://code.claude.com/docs/en/plugins)
+[![Also on OpenClaw](https://img.shields.io/badge/Also%20on-OpenClaw-orange)](https://github.com/devcsde/oatda-openclaw-skills)
 
 [OATDA](https://oatda.com) (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This [Claude Code plugin](https://code.claude.com/docs/en/plugins) adds skills for text generation, vision analysis, image generation, video generation, and audio generation/transcription/translation.
+
+> **Also available:** [OpenClaw skills](https://github.com/devcsde/oatda-openclaw-skills) · [MCP server](https://oatda.com/api/v1/mcp) (Cursor, Cline, Claude Code) · [/llms.txt](https://oatda.com/llms.txt) for browsing agents
 
 ## Supported Providers
 

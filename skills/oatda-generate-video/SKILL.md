@@ -51,13 +51,15 @@ Map common aliases:
 | User says | Provider | Model |
 |-----------|----------|-------|
 | seedance, bytedance (default) | bytedance | seedance-1-5-pro-251215 |
-| minimax, t2v | minimax | T2V-01 |
-| veo, google veo | google | veo-3.0-generate-preview |
-| wan, alibaba | alibaba | wan-t2v |
-| sora | openai | sora |
-| grok video | xai | grok-2-video |
+| minimax, hailuo | minimax | T2V-01-Director |
+| veo, google veo | google | veo-3.0-generate-001 |
+| wan, alibaba | alibaba | wan2.6-t2v |
+| grok video, grok imagine | xai | grok-imagine-video |
+| cogvideo | zai | cogvideox-3 |
 
 **Default**: `bytedance` / `seedance-1-5-pro-251215` if no model specified.
+
+> ⚠️ Video models change fast. Run `/oatda:oatda-list-models` with `type=video` to see the latest.
 
 ### 3. Discover model-specific parameters
 
@@ -231,7 +233,7 @@ curl -s -X POST "https://oatda.com/api/v1/llm/generate-video?async=true" \
   -H "Authorization: Bearer $OATDA_API_KEY" \
   -d '{
     "provider": "xai",
-    "model": "grok-2-video",
+    "model": "grok-imagine-video",
     "prompt": "A futuristic city with flying cars and holographic billboards",
     "model_params": {
       "resolution": "720p"

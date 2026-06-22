@@ -100,8 +100,8 @@ The API returns an OpenAI-compatible format. Image, video, and audio models incl
     "provider": null
   },
   "chatModels": [
-    {"id": "openai/gpt-4o", "provider": "openai", "model": "gpt-4o", "displayName": "GPT-4o"},
-    {"id": "anthropic/claude-3-5-sonnet", "provider": "anthropic", "model": "claude-3-5-sonnet", "displayName": "Claude 3.5 Sonnet"}
+    {"id": "openai/gpt-5", "provider": "openai", "model": "gpt-5", "displayName": "GPT-5"},
+    {"id": "anthropic/claude-sonnet-4-5-20250929", "provider": "anthropic", "model": "claude-sonnet-4-5-20250929", "displayName": "Claude Sonnet 4.5"}
   ],
   "imageModels": [
     {
@@ -212,8 +212,8 @@ This reveals whether a model supports speech generation, transcription, translat
 Format the models in a readable way, organized by category:
 
 **Chat Models** (N total):
-- `openai/gpt-4o` — GPT-4o
-- `anthropic/claude-3-5-sonnet` — Claude 3.5 Sonnet
+- `openai/gpt-5` — GPT-5
+- `anthropic/claude-sonnet-4-5-20250929` — Claude Sonnet 4.5
 - ...
 
 **Image Models** (N total):
