@@ -4,6 +4,19 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [1.3.0] — 2026-06-22
+
+### Added
+
+- **`oatda-compare-models`** skill: benchmark multiple LLM models (GPT-5, Claude Sonnet 4.5, Gemini 3 Pro, etc.) side-by-side in a single parallel request via `POST /api/v1/compare`. Returns each model's response, token usage, and cost. Perfect for "which model is best for X?" or A/B evaluation use cases. Documents the stricter `modelId` schema (not `model`), max-8-models limit, and per-model-failure semantics.
+- **`oatda-check-balance`** skill: `GET /api/v1/user/credits` returns current balance, total usage (`usageSum`), and actionable remaining budget (`actualBalance`). Useful before expensive image/video/long-LLM calls. Documents the `balance` vs `actualBalance` distinction and the €1 minimum top-up.
+
+### Changed
+
+- `package.json` / `.claude-plugin/plugin.json` / `.claude-plugin/marketplace.json` version stamps synchronized at `1.3.0`.
+- `package.json` keywords expanded with `benchmark`, `compare-models`, `balance`, `credits`.
+- Plugin descriptions updated to mention model comparison and balance checking.
+
 ## [1.2.0] — 2026-06-22
 
 ### Changed

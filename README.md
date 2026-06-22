@@ -1,6 +1,6 @@
 # OATDA Skills Plugin for Claude Code
 
-[![Version](https://img.shields.io/badge/version-1.2.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.0-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](https://code.claude.com/docs/en/plugins)
 [![Also on OpenClaw](https://img.shields.io/badge/Also%20on-OpenClaw-orange)](https://github.com/devcsde/oatda-openclaw-skills)
@@ -104,6 +104,8 @@ chmod 600 ~/.oatda/credentials.json
 | Audio Transcription | `/oatda:oatda-transcribe-audio` | Transcribe audio recordings to text |
 | Audio Translation | `/oatda:oatda-translate-audio` | Translate foreign-language audio to English text |
 | List Models | `/oatda:oatda-list-models` | List available models with filtering |
+| Compare Models | `/oatda:oatda-compare-models` | Run one prompt through multiple LLMs in parallel and compare outputs side-by-side (max 8 models) |
+| Check Balance | `/oatda:oatda-check-balance` | Check current balance, total usage, and remaining credits before expensive calls |
 
 Claude will also invoke these skills automatically when relevant to your conversation.
 
@@ -171,6 +173,18 @@ Then check status:
 What OpenAI models are available through OATDA?
 ```
 
+### Compare Models
+
+```
+/oatda:oatda-compare-models Compare how GPT-5, Claude Sonnet 4.5, and Gemini 3 Pro explain recursion
+```
+
+### Check Balance
+
+```
+/oatda:oatda-check-balance Do I have enough credits for a 10-second video?
+```
+
 ## Plugin Structure
 
 ```
@@ -194,8 +208,12 @@ oatda-skills/
 │   │   └── SKILL.md         # Speech-to-text transcription skill
 │   ├── oatda-translate-audio/
 │   │   └── SKILL.md         # Audio translation to English skill
-│   └── oatda-list-models/
-│       └── SKILL.md         # Model listing skill
+│   ├── oatda-list-models/
+│   │   └── SKILL.md         # Model listing skill
+│   ├── oatda-compare-models/
+│   │   └── SKILL.md         # Side-by-side LLM comparison skill
+│   └── oatda-check-balance/
+│       └── SKILL.md         # Account balance / usage check skill
 ├── scripts/
 │   └── setup-credentials.sh # API key setup helper
 ├── README.md
