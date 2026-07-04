@@ -4,6 +4,12 @@ All notable changes to this project will be documented in this file.
 
 The format is based on Keep a Changelog, and this project adheres to Semantic Versioning.
 
+## [Unreleased]
+
+### Changed
+
+- **`oatda-vision-analysis`** canonical endpoint updated from `/api/v1/llm/image` to `/api/v1/llm` (same body, same response). The `/api/v1/llm/image` URL is now a deprecated alias that forwards to the canonical handler with the same payload — existing curl commands keep working, but new integrations should target `/api/v1/llm`. README API table reflects the canonical URL.
+
 ## [1.3.0] — 2026-06-22
 
 ### Added

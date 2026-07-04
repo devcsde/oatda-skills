@@ -75,7 +75,7 @@ Map common aliases to `provider/model` format:
 The vision endpoint uses a `contents` array (NOT a simple `prompt` string):
 
 ```bash
-curl -s -X POST "https://oatda.com/api/v1/llm/image" \
+curl -s -X POST "https://oatda.com/api/v1/llm" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OATDA_API_KEY" \
   -d '{
@@ -99,7 +99,7 @@ curl -s -X POST "https://oatda.com/api/v1/llm/image" \
 
 Replace `<PROVIDER>`, `<MODEL>`, `<ANALYSIS_PROMPT>`, and `<IMAGE_URL>` with actual values.
 
-**CRITICAL**: This endpoint is `/api/v1/llm/image` (NOT `/api/v1/llm/vision`). The request body uses `contents` array, NOT a `prompt` + `imageUrl` structure.
+**CRITICAL**: The canonical endpoint is `/api/v1/llm` (NOT `/api/v1/llm/vision`). The request body uses a `contents` array, NOT a `prompt` + `imageUrl` structure. The legacy `/api/v1/llm/image` alias is deprecated but accepts the same body for backward compatibility.
 
 **Optional parameters** (add to body):
 - `temperature`: 0-2, default 0.7
@@ -147,7 +147,7 @@ Present the `response` field to the user. Optionally mention token usage and cos
 User asks: "Describe this image: https://example.com/photo.jpg"
 
 ```bash
-curl -s -X POST "https://oatda.com/api/v1/llm/image" \
+curl -s -X POST "https://oatda.com/api/v1/llm" \
   -H "Content-Type: application/json" \
   -H "Authorization: Bearer $OATDA_API_KEY" \
   -d '{
@@ -162,7 +162,7 @@ curl -s -X POST "https://oatda.com/api/v1/llm/image" \
 
 ## Tips
 
-- The endpoint is `/api/v1/llm/image` — do NOT confuse with `/api/v1/llm/generate-image` (that's for generation)
+- The canonical endpoint is `/api/v1/llm` — do NOT confuse with `/api/v1/llm/generate-image` (that's for generation). The legacy `/api/v1/llm/image` alias is deprecated but accepts the same body.
 - The body uses `contents` array format, NOT a simple prompt string
 - Only HTTPS image URLs are accepted — no HTTP, no local file paths
 - Image tokens are included in the prompt token count and affect cost

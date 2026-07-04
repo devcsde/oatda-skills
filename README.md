@@ -226,8 +226,8 @@ All skills communicate with the OATDA REST API:
 
 | Endpoint | Method | Purpose |
 |----------|--------|---------|
-| `/api/v1/llm` | POST | Text/chat completion |
-| `/api/v1/llm/image` | POST | Vision analysis |
+| `/api/v1/llm` | POST | Text/chat completion (prompt) and vision analysis (contents[]) |
+| `/api/v1/llm/image` | POST | **Deprecated** alias for `/api/v1/llm` vision analysis (same body) |
 | `/api/v1/llm/generate-image` | POST | Image generation |
 | `/api/v1/llm/generate-video?async=true` | POST | Video generation |
 | `/api/v1/llm/video-status/{taskId}` | GET | Video status |
