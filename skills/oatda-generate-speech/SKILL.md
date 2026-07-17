@@ -12,7 +12,7 @@ Generate spoken audio from text through OATDA's unified audio API.
 Use this skill when the user wants to:
 - Convert text to speech or audio
 - Create voiceovers, announcements, narration, or accessibility audio
-- Use TTS models such as OpenAI `tts-1` through OATDA
+- Use TTS models from OpenAI, xAI, Google and others through OATDA
 - Use the OATDA `generate_speech` capability
 
 ## HTTP vs MCP (read this first)
@@ -22,9 +22,9 @@ Use this skill when the user wants to:
 | **MCP** `generate_speech` | Text with **`AUDIO_URL:`** (HMAC `?exp=&sig=`, ~1h TTL) + metadata in `structuredContent` (`download_url`, `format`, `duration_seconds`, `costs`) | Already connected to OATDA MCP (Cursor, etc.) |
 | **HTTP** `POST /api/v1/llm/speech` | Raw audio bytes (`Content-Disposition: attachment`) | Shell/scripts: `curl --output speech.mp3` |
 
-**Upstream providers (OpenAI TTS, xAI Grok TTS) do not return a hosted download URL** for speech. xAI returns raw bytes (`curl … --output hello.mp3` in [their docs](https://docs.x.ai/docs/guides/voice)). OATDA MCP mirrors TTS into a short-lived signed download so editors can fetch without a browser session.
+**Upstream providers (OpenAI TTS, xAI Grok TTS) do not return a hosted download URL** for speech. xAI returns raw bytes (`curl ... --output hello.mp3` in [their docs](https://docs.x.ai/docs/guides/voice)). OATDA MCP mirrors TTS into a short-lived signed download so editors can fetch without a browser session.
 
-**MCP agents:** After `generate_speech`, extract `AUDIO_URL:` from the tool text (or `structuredContent.download_url`) and download with curl — **no login required**. Do **not** expect MCP `AudioContent` / base64 audio blocks (removed). URL expires in ~1 hour.
+**MCP agents:** After `generate_speech`, extract `AUDIO_URL:` from the tool text (or `structuredContent.download_url`) and download with curl - **no login required**. Do **not** expect MCP `AudioContent` / base64 audio blocks (removed). URL expires in ~1 hour.
 
 **Shell/scripts:** Prefer HTTP with `--output` (see step 4), or MCP signed URL + curl.
 
@@ -60,22 +60,17 @@ If the output is empty or `null`, stop and ask the user to configure their API k
 
 ### 2. Determine the model and voice
 
-Map common aliases:
+> **⚠️ Model availability changes over time.** Always call `list_models` with `type="audio"` (or `/api/v1/llm/models?type=audio`) to verify the exact model ID, available voices, and supported parameters before generating speech.
 
-| User says | Provider | Model |
-|-----------|----------|-------|
-| tts, tts-1, openai tts (default) | openai | tts-1 |
-| tts hd, tts-1-hd | openai | tts-1-hd |
-| gpt tts, gpt-4o mini tts | openai | gpt-4o-mini-tts |
-| grok tts, xai tts, grok-tts | xai | grok-tts |
+If the user provides `provider/model` format directly (e.g. `openai/gpt-4o-mini-tts` or `xai/grok-tts`), split on `/` to get separate `provider` and `model` values for the JSON body.
 
-**Default**: `openai` / `tts-1` if no model is specified.
+Use `list_models` results to determine:
+- Available voices (from `supported_params.voice.values`)
+- Supported response formats
+- Optional parameters like `language` or `instructions`
+- Any per-model constraints
 
-If the user provides `provider/model` format directly (e.g., `openai/tts-1` or `xai/grok-tts`), split on `/` to get separate `provider` and `model` values for the JSON body.
-
-**OpenAI voices** (parameter `voice`): `alloy`, `ash`, `ballad`, `coral`, `echo`, `fable`, `nova`, `onyx`, `sage`, `shimmer`. Default `alloy`.
-
-**xAI Grok TTS** (same `voice` field; OATDA maps to xAI `voice_id`): e.g. `eve`, `ara`, `rex`, `sal`, `una`, `leo`. Default `eve`. Supports `language` (e.g. `en`, `de`, or `auto`). Formats include `mp3`, `wav`, `pcm`, `mulaw`, `alaw`. **Do not send `speed`** to xAI — it is ignored/filtered. Max input **15 000** characters for `grok-tts`.
+If the user does not specify a model, query `list_models` first and offer a choice from the currently available TTS models.
 
 ### 3. Optional: discover available audio models
 
@@ -88,7 +83,7 @@ Use `supported_params` to confirm model-specific options before sending optional
 
 ### 4. Make the HTTP API call (preferred)
 
-The speech endpoint returns **binary audio**, not JSON and **not a URL**. Always save with `--output` (same pattern as xAI’s official TTS examples).
+The speech endpoint returns **binary audio**, not JSON and **not a URL**. Always save with `--output` (same pattern as xAI's official TTS examples).
 
 ```bash
 curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
@@ -124,15 +119,15 @@ If you need to inspect the response headers, use `curl -D headers.txt` while sti
 
 ### MCP `generate_speech`
 
-1. Call with `model` (e.g. `xai/grok-tts`, `openai/tts-1`), `text`, optional `voice`, `response_format`.
-2. Tool result text contains `AUDIO_URL: https://…/api/v1/oneagent/generated/<uuid>?exp=…&sig=…` (also in `structuredContent.download_url`).
+1. Call with `model` (verify exact ID via `list_models` with `type="audio"`), `text`, optional `voice`, `response_format`.
+2. Tool result text contains `AUDIO_URL: https://.../api/v1/oneagent/generated/<uuid>?exp=...&sig=...` (also in `structuredContent.download_url`).
 3. Download without login:
 
 ```bash
 curl -fsSL -o speech.mp3 '<AUDIO_URL from tool result>'
 ```
 
-4. Do **not** look for an MCP `audio` content block / base64 payload — that contract was removed.
+4. Do **not** look for an MCP `audio` content block / base64 payload - that contract was removed.
 5. URL is audio-only and expires in ~1 hour (Redis TTL). Image/video MCP delivery is unchanged (provider URLs).
 
 ### xAI example (HTTP)
@@ -172,7 +167,7 @@ curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
   -H "Authorization: Bearer $OATDA_API_KEY" \
   -d '{
     "provider": "openai",
-    "model": "tts-1",
+    "model": "gpt-4o-mini-tts",
     "input": "Welcome to OATDA, one API to direct all.",
     "voice": "alloy",
     "response_format": "mp3",
@@ -181,13 +176,15 @@ curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
   --output speech.mp3
 ```
 
+> **Note:** The model ID above is an example. Always verify the current model ID via `list_models` before use.
+
 ## Tips
 
 - The endpoint is `/api/v1/llm/speech`.
 - Use `input`, not `prompt`, for text-to-speech requests.
 - **HTTP:** response body = audio bytes; always use `curl --output <file>`. **Not** a JSON URL.
 - **MCP:** signed `AUDIO_URL` in tool text / `structuredContent.download_url`; download with curl (no session). Expires ~1h.
-- TTS is **not** like image generation: `grok-imagine-image` may return an HTTPS URL; HTTP `grok-tts` returns raw bytes. MCP speech adds OATDA’s short-lived signed mirror.
+- TTS is **not** like image generation: `grok-imagine-image` may return an HTTPS URL; HTTP `grok-tts` returns raw bytes. MCP speech adds OATDA's short-lived signed mirror.
 - For model discovery, use `/api/v1/llm/models?type=audio` or MCP `list_models` with `type="audio"`.
 - Keep text under 15000 characters (stricter limits may apply per model).
 - NEVER expose the full API key in output.

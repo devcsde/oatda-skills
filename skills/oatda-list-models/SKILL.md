@@ -133,14 +133,14 @@ The API returns an OpenAI-compatible format. Image, video, and audio models incl
   ],
   "audio_models": [
     {
-      "id": "openai/tts-1",
+      "id": "openai/gpt-4o-mini-tts",
       "provider": "openai",
-      "model_name": "tts-1",
-      "display_name": "OpenAI TTS 1",
+      "model_name": "gpt-4o-mini-tts",
+      "display_name": "OpenAI GPT-4o Mini TTS",
       "supported_params": {
         "audio_modes": ["tts"],
-        "voice": {"type": "string", "values": ["alloy", "nova", "shimmer"]},
-        "response_format": {"type": "string", "values": ["mp3", "wav", "opus"]}
+        "voice": {"type": "select", "values": ["alloy", "echo", "fable", "onyx", "nova", "shimmer", "coral"]},
+        "response_format": {"type": "select", "values": ["mp3", "wav", "opus"]}
       }
     },
     {
@@ -225,7 +225,7 @@ Format the models in a readable way, organized by category:
 - ...
 
 **Audio Models** (N total):
-- `openai/tts-1` — OpenAI TTS 1
+- `openai/gpt-4o-mini-tts` — OpenAI GPT-4o Mini TTS
 - `openai/whisper-1` — OpenAI Whisper
 - ...
 
