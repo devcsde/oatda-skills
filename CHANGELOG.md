@@ -6,6 +6,10 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+### Changed
+
+- **README speech example:** `openai/tts-1` → `openai/gpt-4o-mini-tts` (deprecated models removed from catalog); note to prefer `list_models type=audio` first.
+
 ## [1.3.1] — 2026-07-17
 
 ### Changed
