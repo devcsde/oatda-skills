@@ -6,9 +6,13 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+## [1.3.1] — 2026-07-17
+
 ### Changed
 
+- **`oatda-generate-speech` MCP contract:** MCP `generate_speech` now returns a short-lived signed `AUDIO_URL` (`?exp=&sig=`, curl without login) plus `structuredContent.download_url` — not MCP `AudioContent` / base64 blocks and not “no server storage”. HTTP `/api/v1/llm/speech` still returns raw bytes via `curl --output`.
 - **`oatda-vision-analysis`** canonical endpoint updated from `/api/v1/llm/image` to `/api/v1/llm` (same body, same response). The `/api/v1/llm/image` URL is now a deprecated alias that forwards to the canonical handler with the same payload — existing curl commands keep working, but new integrations should target `/api/v1/llm`. README API table reflects the canonical URL.
+- `package.json` / `.claude-plugin/plugin.json` / `.claude-plugin/marketplace.json` / README badge synchronized at `1.3.1`.
 
 ## [1.3.0] — 2026-06-22
 

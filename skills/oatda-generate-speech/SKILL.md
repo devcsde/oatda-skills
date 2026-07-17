@@ -1,6 +1,6 @@
 ---
 name: oatda-generate-speech
-description: Use when the user wants to generate speech/audio from text using OATDA's unified audio API. MCP generate_speech returns MCP audio content (client saves/plays; no server storage). HTTP /api/v1/llm/speech returns a file via curl --output. Supports OpenAI TTS, xAI grok-tts, voiceovers, and accessibility audio.
+description: Use when the user wants to generate speech/audio from text using OATDA's unified audio API. MCP generate_speech returns a short-lived signed AUDIO_URL (download with curl, no login). HTTP /api/v1/llm/speech returns a file via curl --output. Supports OpenAI TTS, xAI grok-tts, voiceovers, and accessibility audio.
 ---
 
 # OATDA Speech Generation
@@ -19,14 +19,14 @@ Use this skill when the user wants to:
 
 | Path | Response | Use when |
 |------|----------|----------|
-| **MCP** `generate_speech` | **MCP `audio` content block** (base64 in protocol; client saves/plays) + metadata in `structuredContent` | Already connected to OATDA MCP (Cursor, etc.) — **no OATDA file storage** |
+| **MCP** `generate_speech` | Text with **`AUDIO_URL:`** (HMAC `?exp=&sig=`, ~1h TTL) + metadata in `structuredContent` (`download_url`, `format`, `duration_seconds`, `costs`) | Already connected to OATDA MCP (Cursor, etc.) |
 | **HTTP** `POST /api/v1/llm/speech` | Raw audio bytes (`Content-Disposition: attachment`) | Shell/scripts: `curl --output speech.mp3` |
 
-**Upstream providers (OpenAI TTS, xAI Grok TTS) do not return a hosted download URL** for speech. xAI returns raw bytes (`curl … --output hello.mp3` in [their docs](https://docs.x.ai/docs/guides/voice)). Unlike `grok-imagine-image`, there is no provider CDN link for TTS.
+**Upstream providers (OpenAI TTS, xAI Grok TTS) do not return a hosted download URL** for speech. xAI returns raw bytes (`curl … --output hello.mp3` in [their docs](https://docs.x.ai/docs/guides/voice)). OATDA MCP mirrors TTS into a short-lived signed download so editors can fetch without a browser session.
 
-**MCP agents:** After `generate_speech`, use the **attached audio content** from the tool result (MCP spec `AudioContent`). Do not tell the user to “decode base64 manually” — save or play via the MCP client. Metadata (`format`, `duration_seconds`, `costs`) is in `structuredContent` without duplicating the audio blob.
+**MCP agents:** After `generate_speech`, extract `AUDIO_URL:` from the tool text (or `structuredContent.download_url`) and download with curl — **no login required**. Do **not** expect MCP `AudioContent` / base64 audio blocks (removed). URL expires in ~1 hour.
 
-**Shell/scripts:** Prefer HTTP with `--output` (see step 4).
+**Shell/scripts:** Prefer HTTP with `--output` (see step 4), or MCP signed URL + curl.
 
 ## Prerequisites
 
@@ -125,8 +125,15 @@ If you need to inspect the response headers, use `curl -D headers.txt` while sti
 ### MCP `generate_speech`
 
 1. Call with `model` (e.g. `xai/grok-tts`, `openai/tts-1`), `text`, optional `voice`, `response_format`.
-2. The tool result includes an **`audio` content block** (`mimeType` + `data`) per the MCP spec — use your client to save or play it (e.g. write `speech.mp3` in the workspace).
-3. Use `structuredContent` for billing/metadata only (`format`, `duration_seconds`, `costs`) — not for the audio bytes.
+2. Tool result text contains `AUDIO_URL: https://…/api/v1/oneagent/generated/<uuid>?exp=…&sig=…` (also in `structuredContent.download_url`).
+3. Download without login:
+
+```bash
+curl -fsSL -o speech.mp3 '<AUDIO_URL from tool result>'
+```
+
+4. Do **not** look for an MCP `audio` content block / base64 payload — that contract was removed.
+5. URL is audio-only and expires in ~1 hour (Redis TTL). Image/video MCP delivery is unchanged (provider URLs).
 
 ### xAI example (HTTP)
 
@@ -179,10 +186,10 @@ curl -s -X POST "https://oatda.com/api/v1/llm/speech" \
 - The endpoint is `/api/v1/llm/speech`.
 - Use `input`, not `prompt`, for text-to-speech requests.
 - **HTTP:** response body = audio bytes; always use `curl --output <file>`. **Not** a JSON URL.
-- **MCP:** returns spec **`audio` content** in the tool result; OATDA does not store speech files on disk.
-- TTS is **not** like image generation: `grok-imagine-image` may return an HTTPS URL; `grok-tts` does not.
+- **MCP:** signed `AUDIO_URL` in tool text / `structuredContent.download_url`; download with curl (no session). Expires ~1h.
+- TTS is **not** like image generation: `grok-imagine-image` may return an HTTPS URL; HTTP `grok-tts` returns raw bytes. MCP speech adds OATDA’s short-lived signed mirror.
 - For model discovery, use `/api/v1/llm/models?type=audio` or MCP `list_models` with `type="audio"`.
 - Keep text under 15000 characters (stricter limits may apply per model).
 - NEVER expose the full API key in output.
-- MCP tool name: `generate_speech` (audio content block, no server-side artifact storage).
+- MCP tool name: `generate_speech` (signed download URL, not AudioContent base64).
 - Related skills: `/oatda:oatda-list-models`, `/oatda:oatda-transcribe-audio`, `/oatda:oatda-translate-audio`.

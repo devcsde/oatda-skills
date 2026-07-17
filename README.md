@@ -1,6 +1,6 @@
 # OATDA Skills Plugin for Claude Code
 
-[![Version](https://img.shields.io/badge/version-1.3.0-blue)](CHANGELOG.md)
+[![Version](https://img.shields.io/badge/version-1.3.1-blue)](CHANGELOG.md)
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](https://code.claude.com/docs/en/plugins)
 [![Also on OpenClaw](https://img.shields.io/badge/Also%20on-OpenClaw-orange)](https://github.com/devcsde/oatda-openclaw-skills)
