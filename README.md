@@ -148,7 +148,8 @@ Then check status:
 ### Speech Generation
 
 ```
-/oatda:oatda-generate-speech Convert this announcement to speech using openai/tts-1 with alloy voice
+/oatda:oatda-generate-speech Convert this announcement to speech using openai/gpt-4o-mini-tts with alloy voice
+# Prefer: list models first — /oatda:oatda-list-models type=audio — then pick a current TTS id
 ```
 
 ### Audio Transcription
