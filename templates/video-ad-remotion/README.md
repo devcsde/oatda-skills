@@ -2,15 +2,37 @@
 
 Vollständige Pipeline-Doku für eigenständige Ad-Produktion (Stand 2026-08-29, Run #1/#2).
 
-## Setup (lokal, bei Chris)
+## Setup (lokal, bei Chris) — SO LÄUFT ES BEI BOB (Stand 2026-08-29)
+
+**System-Voraussetzungen:**
+1. **Node.js LTS v22** (bei Bob: v22.22.3) — nodejs.org Installer (Win) / `brew install node` (Mac). Check: `node -v`
+2. **ffmpeg 6.x** (bei Bob: 6.1.1) — für Audio-Kette + Mux + QA. Win: `winget install ffmpeg`, Mac: `brew install ffmpeg`. Check: `ffmpeg -version`
+
+**Projekt-Setup (exakt Bobs Versionen — alle @remotion/* MÜSSEN gleiche Version sein!):**
 ```bash
-mkdir video-ad && cd video-ad && npm init -y
-npm i remotion @remotion/cli react react-dom
-npx remotion install  # chromium für rendering
-# src/index.ts + Root.tsx anlegen (Register pro Komposition), Ads/ aus diesem Template kopieren
-# public/videos/ + public/images/screenshots/ anlegen und eigene Assets einfügen
-npx remotion render <composition-id> out/raw.mp4
+mkdir oatda-video-ad && cd oatda-video-ad
+npm init -y
+npm i remotion@4.0.445 @remotion/cli@4.0.445 @remotion/renderer@4.0.445 react@19.2.4 react-dom@19.2.4
 ```
+
+**Struktur anlegen:**
+- `src/index.ts` → `registerRoot(RemotionRoot)`
+- `src/Root.tsx` → `<Composition id=... component=... durationInFrames fps={30} width={1920} height={1080}/>` (Muster in Root-Auszug)
+- `src/Ads/*.tsx` aus diesem Template kopieren
+- `public/videos/` + `public/images/screenshots/` anlegen, eigene Assets rein (Zugriff via `staticFile('...')`)
+
+**Render-Browser:** Beim ersten `npx remotion render` lädt Remotion automatisch die Chrome Headless Shell herunter (einmalig, Internet nötig). Alternativ vorher: `npx remotion browser ensure`.
+
+**LIVE-VORSCHAU beim Bauen (Gold wert!):**
+```bash
+npx remotion studio   # öffnet http://localhost:3000 — Komposition live scrubben/tunen
+```
+
+**Render + Scripts (Bobs package.json):**
+- `npm run render -- <comp-id> out/raw.mp4` (oder direkt `npx remotion render`)
+- `npm start` = Studio
+
+**Fonts (wichtig!):** Kompos nutzen `fontFamily: 'Inter, system-ui'` — auf deinem System muss **Inter installiert** sein (fonts.google.com/Inter), sonst greift ein Fallback. Robuster: `npm i @remotion/google-fonts` und `import {loadFont} from '@remotion/google-fonts/Inter'` — dann ist der Font auf JEDEM System deterministisch.
 
 ## Szenen-Baukasten (siehe GrokAdRun2.tsx)
 MgHook (Logo-Reveal+Typo, $0) · ShotScene (Screenshot+Zoom+Crossfade) · Punchline-Overlay · Outro.
