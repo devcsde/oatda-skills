@@ -72,3 +72,12 @@ Chrome DE-UI, F11 Vollbild, 1280×720+ — Dashboard/Playground/OneAgent eingelo
 
 ## Zahlen-Ehrlichkeit
 Root.tsx defaultProps = Quelle (14 Provider / 245 Modelle, verschiebbar) → im Ad immer Plus-Floors: "14 Provider · 245+ Modelle".
+
+## Musik & Lizenz (WICHTIG)
+Verwendbare Tracks: km_wallpaper / km_life-of-riley / km_carefree (Kevin MacLeod, CC-BY).
+**Bei jeder Veröffentlichung** gehört in die Video-Description:
+```
+Music: Wallpaper — Kevin MacLeod, incompetech.com
+```
+(Track-Namen entsprechend ersetzen. Interne Previews ohne Credit ok.)
+Die älteren corporate-*-Ambient-Loops klingen monoton — nicht mehr verwenden (Chris-Urteil 2026-08-29).
