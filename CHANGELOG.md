@@ -6,6 +6,11 @@ The format is based on Keep a Changelog, and this project adheres to Semantic Ve
 
 ## [Unreleased]
 
+### Added
+
+- **`oatda-video-ad-creator`** skill: end-to-end branded video ad production for any user's own product — script → OATDA TTS voiceover → OATDA AI hook clip → screenshots → Remotion composition → ffmpeg mux → mandatory render QA gate (specs, black/silence detection, loudness, frame review, audio coverage).
+- **`templates/video-ad-remotion/`**: Remotion scaffold with a single documented example composition (`BrandAdExample.tsx`) covering the four scene types (AI hook, screenshot, code, outro), plus an English setup/render/mux/licensing guide.
+
 ### Changed
 
 - **README speech example:** `openai/tts-1` → `openai/gpt-4o-mini-tts` (deprecated models removed from catalog); note to prefer `list_models type=audio` first.

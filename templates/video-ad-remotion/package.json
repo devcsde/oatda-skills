@@ -1,0 +1,17 @@
+{
+  "name": "video-ad-template",
+  "version": "1.0.0",
+  "description": "Branded video ad template built with Remotion",
+  "scripts": {
+    "start": "npx remotion studio",
+    "build": "npx remotion render src/index.ts brand-ad-example out/brand-ad.mp4",
+    "render": "npx remotion render"
+  },
+  "dependencies": {
+    "@remotion/cli": "^4.0.445",
+    "@remotion/renderer": "^4.0.445",
+    "react": "^19.2.4",
+    "react-dom": "^19.2.4",
+    "remotion": "^4.0.445"
+  }
+}
