@@ -1,0 +1,60 @@
+{
+  "name": "@oatda-ai/skills",
+  "version": "1.3.1",
+  "description": "OATDA skills plugin for Claude Code — Unified access to 10+ LLM providers for text, vision, image, video, and audio generation/transcription/translation",
+  "author": "devcsde",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/devcsde/oatda-skills.git"
+  },
+  "homepage": "https://github.com/devcsde/oatda-skills#readme",
+  "bugs": {
+    "url": "https://github.com/devcsde/oatda-skills/issues"
+  },
+  "keywords": [
+    "oatda",
+    "llm",
+    "ai",
+    "ai-gateway",
+    "claude-code",
+    "claude-code-plugin",
+    "skills",
+    "openai",
+    "anthropic",
+    "google",
+    "deepseek",
+    "mistral",
+    "grok",
+    "moonshot",
+    "kimi",
+    "minimax",
+    "qwen",
+    "alibaba",
+    "bytedance",
+    "glm",
+    "zai",
+    "audio",
+    "tts",
+    "text-to-speech",
+    "speech-to-text",
+    "transcription",
+    "translation",
+    "whisper",
+    "image-generation",
+    "video-generation",
+    "vision",
+    "unified-api",
+    "benchmark",
+    "compare-models",
+    "balance",
+    "credits"
+  ],
+  "files": [
+    ".claude-plugin/",
+    "skills/",
+    "scripts/",
+    "README.md",
+    "LICENSE"
+  ]
+}
