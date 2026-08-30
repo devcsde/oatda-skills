@@ -4,6 +4,7 @@
 [![License](https://img.shields.io/badge/license-Apache%202.0-blue.svg)](LICENSE)
 [![Claude Code](https://img.shields.io/badge/Claude%20Code-plugin-blueviolet)](https://code.claude.com/docs/en/plugins)
 [![Also on OpenClaw](https://img.shields.io/badge/Also%20on-OpenClaw-orange)](https://github.com/devcsde/oatda-openclaw-skills)
+[![skills.sh](https://skills.sh/b/devcsde/oatda-skills)](https://skills.sh/devcsde/oatda-skills)
 
 [OATDA](https://oatda.com) (One API To Direct All) provides unified access to 10+ LLM providers through a single API. This [Claude Code plugin](https://code.claude.com/docs/en/plugins) adds skills for text generation, vision analysis, image generation, video generation, and audio generation/transcription/translation.
 
@@ -48,6 +49,12 @@ then go to installed marketplaces, browse to and click "Install" on the OATDA Sk
 3. restart claude-code
 then restart claude-code to load the skill/plugin
 
+```
+
+### Option 3: Install via skills CLI (Claude Code, Cursor, Codex, and more)
+
+```bash
+npx skills add devcsde/oatda-skills
 ```
 
 ## Configuration
