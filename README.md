@@ -110,6 +110,7 @@ chmod 600 ~/.oatda/credentials.json
 | Speech Generation | `/oatda:oatda-generate-speech` | Generate speech/audio from text (TTS) |
 | Audio Transcription | `/oatda:oatda-transcribe-audio` | Transcribe audio recordings to text |
 | Audio Translation | `/oatda:oatda-translate-audio` | Translate foreign-language audio to English text |
+| Video Ad Creator | `/oatda:oatda-video-ad-creator` | Create branded video ads with your own brand, screenshots and voiceover (TTS + AI video + Remotion) |
 | List Models | `/oatda:oatda-list-models` | List available models with filtering |
 | Compare Models | `/oatda:oatda-compare-models` | Run one prompt through multiple LLMs in parallel and compare outputs side-by-side (max 8 models) |
 | Check Balance | `/oatda:oatda-check-balance` | Check current balance, total usage, and remaining credits before expensive calls |
